@@ -254,20 +254,25 @@ elif page == "Association Rules":
                 st.dataframe(rules[["antecedents", "consequents", "support", "confidence", "lift"]].head(10))
                 st.write("Example: [highscorer, highwickets] → allrounder")
 
-                # ---- PLOT 1: Support vs Confidence Bubble Plot ----
-                st.subheader("Support vs Confidence (bubble size = Lift)")
-                fig, ax = plt.subplots(figsize=(7,5))
-                sc = ax.scatter(rules['support'], rules['confidence'], 
-                                s=300*rules['lift'], alpha=0.7, c=rules['lift'], cmap="cool")
-                for i, row in rules.iterrows():
-                    label = ','.join([str(a) for a in row['antecedents']]) + " → " + ','.join([str(c) for c in row['consequents']])
-                    ax.annotate(label, (row['support'], row['confidence']), fontsize=8, alpha=0.5)
-                ax.set_xlabel("Support")
-                ax.set_ylabel("Confidence")
-                ax.set_title("Association Rules: Support vs Confidence")
-                cbar = fig.colorbar(sc, ax=ax)
-                cbar.set_label("Lift")
-                st.pyplot(fig)
+             # ---- PLOT 1: Support vs Confidence Bubble Plot ----
+st.subheader("Support vs Confidence (bubble size = Lift)")
+fig, ax = plt.subplots(figsize=(7,5))
+sc = ax.scatter(rules['support'], rules['confidence'], 
+                s=300*rules['lift'], alpha=0.7, c=rules['lift'], cmap="cool")
+
+# Label only the top 5 rules by lift
+rules_sorted = rules.sort_values("lift", ascending=False).head(5)
+for i, row in rules_sorted.iterrows():
+    label = ','.join([str(a) for a in row['antecedents']]) + "→" + ','.join([str(c) for c in row['consequents']])
+    ax.annotate(label, (row['support'], row['confidence']), fontsize=10, weight='bold', alpha=0.9)
+
+ax.set_xlabel("Support")
+ax.set_ylabel("Confidence")
+ax.set_title("Association Rules: Support vs Confidence (Top 5 Rules Labelled)")
+cbar = fig.colorbar(sc, ax=ax)
+cbar.set_label("Lift")
+st.pyplot(fig)
+
 
                 # ---- PLOT 2: Heatmap of Top Rules by Confidence ----
                 st.subheader("Heatmap: Confidence of Top Association Rules")
