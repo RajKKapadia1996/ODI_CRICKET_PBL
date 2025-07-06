@@ -18,18 +18,16 @@ st.set_page_config(page_title="ODI Cricket Analytics Dashboard", layout="wide")
 @st.cache_data
 def load_data():
     df = pd.read_csv("ODI Cricket Data new.csv")
-    # Aggressively clean and normalize column names
-    df.columns = (
-        df.columns.str.replace('\u200b', '', regex=True)
-                  .str.replace('\xa0', '', regex=True)
-                  .str.strip()
-    )
+    # Aggressive cleaning for spaces/invisibles
+    df.columns = (df.columns.str.replace('\u200b', '', regex=True)
+                              .str.replace('\xa0', '', regex=True)
+                              .str.strip())
     return df
 
 df = load_data()
 
-#Print cleaned columns for debugging (optional)
-st.write("Cleaned columns:", df.columns.tolist())
+# Uncomment below for debugging
+# st.write("Cleaned columns:", df.columns.tolist())
 
 st.sidebar.title("Navigation")
 page = st.sidebar.radio("Choose Section", [
@@ -68,83 +66,86 @@ elif page == "Visualizations":
     try:
         # 1. Top 10 Run Scorers
         st.subheader("1️⃣ Top 10 Run Scorers")
-        top_runs = df[['Player', 'Runs']].sort_values("Runs", ascending=False).head(10)
+        top_runs = df[['player_name', 'total_runs']].sort_values("total_runs", ascending=False).head(10)
         fig, ax = plt.subplots(figsize=(8,4))
-        sns.barplot(data=top_runs, y="Player", x="Runs", palette="crest", ax=ax)
+        sns.barplot(data=top_runs, y="player_name", x="total_runs", palette="crest", ax=ax)
         ax.set_title("Top 10 Run Scorers")
         st.pyplot(fig)
 
         # 2. Top 10 Wicket Takers
         st.subheader("2️⃣ Top 10 Wicket Takers")
-        top_wickets = df[['Player', 'Wkts']].sort_values("Wkts", ascending=False).head(10)
+        top_wickets = df[['player_name', 'total_wickets_taken']].sort_values("total_wickets_taken", ascending=False).head(10)
         fig, ax = plt.subplots(figsize=(8,4))
-        sns.barplot(data=top_wickets, y="Player", x="Wkts", palette="magma", ax=ax)
+        sns.barplot(data=top_wickets, y="player_name", x="total_wickets_taken", palette="magma", ax=ax)
         ax.set_title("Top 10 Wicket Takers")
         st.pyplot(fig)
 
         # 3. Runs vs. Matches (scatter)
         st.subheader("3️⃣ Runs vs. Matches")
         fig, ax = plt.subplots(figsize=(6,4))
-        sns.scatterplot(data=df, x="Mat", y="Runs", hue="Player Type", ax=ax)
+        sns.scatterplot(data=df, x="total_matches_played", y="total_runs", hue="role", ax=ax)
         ax.set_title("Runs vs. Matches")
         st.pyplot(fig)
 
-        # 4. Average vs. Strike Rate by Player Type
-        st.subheader("4️⃣ Average vs. Strike Rate by Player Type")
+        # 4. Average vs. Strike Rate by Role
+        st.subheader("4️⃣ Average vs. Strike Rate by Role")
         fig, ax = plt.subplots(figsize=(7,5))
-        sns.scatterplot(data=df, x="Ave", y="SR", hue="Player Type", style="Player Type", s=80, ax=ax)
+        sns.scatterplot(data=df, x="average", y="strike_rate", hue="role", style="role", s=80, ax=ax)
         ax.set_title("Batting Average vs. Strike Rate")
         st.pyplot(fig)
 
         # 5. Bowler Economy Distribution
-        st.subheader("5️⃣ Bowler Economy Rate Distribution")
-        fig, ax = plt.subplots(figsize=(7,4))
-        sns.histplot(df["Econ"].dropna(), bins=30, color="orchid", kde=True, ax=ax)
-        ax.set_xlabel("Economy Rate")
-        ax.set_title("Bowling Economy Distribution")
-        st.pyplot(fig)
+        if "total_overs_bowled" in df.columns and "total_runs_conceded" in df.columns:
+            st.subheader("5️⃣ Bowler Economy Rate Distribution")
+            df["economy"] = df["total_runs_conceded"] / (df["total_overs_bowled"].replace(0, np.nan))
+            fig, ax = plt.subplots(figsize=(7,4))
+            sns.histplot(df["economy"].dropna(), bins=30, color="orchid", kde=True, ax=ax)
+            ax.set_xlabel("Economy Rate")
+            ax.set_title("Bowling Economy Distribution")
+            st.pyplot(fig)
 
-        # 6. Player Type Counts
-        st.subheader("6️⃣ Player Type Distribution")
-        type_counts = df["Player Type"].value_counts()
+        # 6. Role Counts
+        st.subheader("6️⃣ Player Role Distribution")
+        role_counts = df["role"].value_counts()
         fig, ax = plt.subplots(figsize=(6,4))
-        sns.barplot(x=type_counts.index, y=type_counts.values, palette="pastel", ax=ax)
-        ax.set_title("Player Types")
+        sns.barplot(x=role_counts.index, y=role_counts.values, palette="pastel", ax=ax)
+        ax.set_title("Player Roles")
         st.pyplot(fig)
 
-        # 7. Country-wise Top Batsmen
-        st.subheader("7️⃣ Top 5 Batsmen by Country")
-        countries = df["Country"].unique()[:6]
-        for country in countries:
-            sub = df[df["Country"]==country].sort_values("Runs", ascending=False).head(5)
+        # 7. Team-wise Top Batsmen
+        st.subheader("7️⃣ Top 5 Batsmen by Team")
+        teams = df["team"].unique()[:6]
+        for team in teams:
+            sub = df[df["team"]==team].sort_values("total_runs", ascending=False).head(5)
             fig, ax = plt.subplots(figsize=(7,2))
-            sns.barplot(data=sub, x="Player", y="Runs", palette="flare", ax=ax)
-            ax.set_title(f"Top Batsmen - {country}")
+            sns.barplot(data=sub, x="player_name", y="total_runs", palette="flare", ax=ax)
+            ax.set_title(f"Top Batsmen - {team}")
             st.pyplot(fig)
 
         # 8. Correlation heatmap
         st.subheader("8️⃣ Feature Correlation Matrix")
-        num_cols = ["Runs","BF","Ave","Wkts","Econ","Mat","SR","Ct"]
+        num_cols = ["total_runs", "strike_rate", "total_balls_faced", "total_wickets_taken", "total_runs_conceded", "total_overs_bowled", "total_matches_played", "average", "percentage"]
+        num_cols = [col for col in num_cols if col in df.columns]
         corr = df[num_cols].corr()
         fig, ax = plt.subplots(figsize=(9,7))
         sns.heatmap(corr, annot=True, cmap="YlGnBu", ax=ax)
         ax.set_title("Numerical Feature Correlations")
         st.pyplot(fig)
 
-        # 9. Sixes vs. Fours
-        st.subheader("9️⃣ Sixes vs. Fours (Top 20 Batsmen)")
-        top_bats = df.sort_values("Runs", ascending=False).head(20)
+        # 9. Role vs. Strike Rate
+        st.subheader("9️⃣ Role vs. Strike Rate (Top 20 by SR)")
+        top_sr = df.sort_values("strike_rate", ascending=False).head(20)
         fig, ax = plt.subplots(figsize=(7,4))
-        sns.scatterplot(data=top_bats, x="4s", y="6s", hue="Player", palette="husl", s=120, ax=ax)
-        ax.set_title("Sixes vs. Fours")
+        sns.barplot(data=top_sr, y="player_name", x="strike_rate", hue="role", dodge=False, ax=ax)
+        ax.set_title("Top 20 Strike Rates by Role")
         st.pyplot(fig)
 
-        # 10. Players by Country (Pie)
-        st.subheader("🔟 Players by Country")
-        country_counts = df["Country"].value_counts().head(10)
+        # 10. Players by Team (Pie)
+        st.subheader("🔟 Players by Team")
+        team_counts = df["team"].value_counts().head(10)
         fig, ax = plt.subplots(figsize=(7,5))
-        ax.pie(country_counts, labels=country_counts.index, autopct="%1.1f%%", colors=sns.color_palette("Set3", 10))
-        ax.set_title("Players by Country")
+        ax.pie(team_counts, labels=team_counts.index, autopct="%1.1f%%", colors=sns.color_palette("Set3", 10))
+        ax.set_title("Players by Team")
         st.pyplot(fig)
 
     except Exception as e:
@@ -154,7 +155,7 @@ elif page == "Visualizations":
 elif page == "Clustering & Segmentation":
     st.title("🧬 Player Segmentation (Clustering)")
     try:
-        features = ["Runs", "SR", "Ave", "Wkts", "Econ", "Mat"]
+        features = ["total_runs", "strike_rate", "average", "total_wickets_taken", "total_matches_played"]
         X = df[features].dropna()
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
@@ -164,7 +165,7 @@ elif page == "Clustering & Segmentation":
         X_clustered["cluster"] = clusters
 
         fig, ax = plt.subplots(figsize=(7,5))
-        sns.scatterplot(data=X_clustered, x="Runs", y="Wkts", hue="cluster", palette="Set1", ax=ax)
+        sns.scatterplot(data=X_clustered, x="total_runs", y="total_wickets_taken", hue="cluster", palette="Set1", ax=ax)
         ax.set_title("Player Segments by Runs & Wickets")
         st.pyplot(fig)
 
@@ -178,8 +179,8 @@ elif page == "Clustering & Segmentation":
 elif page == "Regression":
     st.title("📈 Regression: Predict Runs")
     try:
-        features = ["BF", "SR", "Ave", "Mat"]
-        target = "Runs"
+        features = ["total_balls_faced", "strike_rate", "average", "total_matches_played"]
+        target = "total_runs"
         data = df[features + [target]].dropna()
         X = data[features]
         y = data[target]
@@ -206,8 +207,8 @@ elif page == "Regression":
 elif page == "Classification":
     st.title("🔮 Classification: Predict High Scorer")
     try:
-        df["highscorer"] = (df["Runs"] >= 5000).astype(int)
-        features = ["BF", "SR", "Ave", "Mat"]
+        df["highscorer"] = (df["total_runs"] >= 3000).astype(int)
+        features = ["total_balls_faced", "strike_rate", "average", "total_matches_played"]
         X = df[features].dropna()
         y = df.loc[X.index, "highscorer"]
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -235,12 +236,11 @@ elif page == "Association Rules":
     st.title("🧩 Association Rules Mining")
     try:
         assoc_df = pd.DataFrame()
-        assoc_df["highscorer"] = df["Runs"] > 5000
-        assoc_df["aggressive"] = df["SR"] > 90
-        assoc_df["highwickets"] = df["Wkts"] > 150
-        assoc_df["goodcatcher"] = df["Ct"] > 75
-        assoc_df["allrounder"] = ((df["Runs"] > 3000) & (df["Wkts"] > 75))
-        assoc_df["veteran"] = df["Mat"] > 150
+        assoc_df["highscorer"] = df["total_runs"] > 3000
+        assoc_df["aggressive"] = df["strike_rate"] > 90
+        assoc_df["highwickets"] = df["total_wickets_taken"] > 75
+        assoc_df["allrounder"] = ((df["total_runs"] > 1500) & (df["total_wickets_taken"] > 25))
+        assoc_df["veteran"] = df["total_matches_played"] > 100
         assoc_df = assoc_df.astype(int)
         freq_items = apriori(assoc_df, min_support=0.1, use_colnames=True)
         rules = association_rules(freq_items, metric="confidence", min_threshold=0.5)
