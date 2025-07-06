@@ -69,25 +69,80 @@ def prettify_table(data):
 if page == "Home":
     st.markdown(
         """
-        <div style="background:linear-gradient(90deg,#232946 60%,#08F7FE11 100%);padding:2rem 2.5rem 2rem 2.5rem;border-radius:20px;margin-bottom:30px;border:2px solid #08F7FE;">
-            <h1 style="color:#08F7FE;font-size:2.5rem;margin-bottom:1rem;">🏏 ODI Cricket Analytics Dashboard</h1>
-            <h3 style="color:#F7F7FF;font-weight:600;margin-bottom:1.2rem;">Explore International Cricket Stats with <span style="color:#08F7FE;">AI-Powered Insights</span></h3>
-            <p style="font-size:1.25rem;color:#F7F7FF;margin-bottom:1.2rem;">
-                <b>This dashboard lets you:</b>
-                <ul style="font-size:1.1rem;line-height:2;">
-                  <li>📊 <b>Visualize</b> top scorers, teams, & player stats</li>
-                  <li>🧬 <b>Cluster</b> players by performance & style</li>
-                  <li>🔮 <b>Classify</b> high scorers & top wicket-takers</li>
-                  <li>📈 <b>Predict</b> player runs (regression)</li>
-                  <li>🧩 <b>Discover</b> hidden patterns (association rules)</li>
-                </ul>
-                <b>Use the sidebar</b> to explore each section.<br>
-                <span style="color:#08F7FE;font-size:1.1rem;">Built for students, analysts, fans, and cricket scouts!</span>
-            </p>
+        <style>
+        .frosted {
+            background: rgba(35,41,70,0.89);
+            box-shadow: 0 8px 32px 0 rgba(31,38,135,0.37);
+            backdrop-filter: blur(5.5px);
+            -webkit-backdrop-filter: blur(5.5px);
+            border-radius: 24px;
+            border: 2px solid #08F7FE55;
+            margin-bottom: 40px;
+            padding: 2.5rem 2rem 2.5rem 2rem;
+        }
+        .home-title {
+            color: #08F7FE;
+            font-size: 2.8rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+            text-shadow: 0 4px 24px #08F7FE44;
+        }
+        .home-sub {
+            color: #F7F7FF;
+            font-size: 1.45rem;
+            margin-bottom: 1.3rem;
+            font-weight: 500;
+        }
+        .cricket-emoji {
+            font-size: 2.3rem;
+            vertical-align:middle;
+            animation: spin 1.5s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg);} }
+        .feature-list li {
+            font-size: 1.16rem;
+            margin: 0.9em 0;
+            padding-left: 0.6em;
+            color: #F7F7FF;
+        }
+        .feature-list b { color: #08F7FE; }
+        .explore-btn {
+            display: inline-block;
+            margin-top: 1.8rem;
+            padding: 0.8rem 2rem;
+            background: linear-gradient(90deg,#08F7FE77 60%,#F2C12E77 100%);
+            color: #11111B;
+            font-size: 1.25rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 1.8rem;
+            box-shadow: 0 2px 20px #08F7FE33;
+            text-decoration: none;
+            transition: background .23s;
+        }
+        .explore-btn:hover {
+            background: linear-gradient(90deg,#F2C12E 50%,#08F7FE 100%);
+            color: #232946;
+        }
+        </style>
+        <div class="frosted">
+            <span class="cricket-emoji">🏏</span>
+            <span class="home-title">ODI Cricket Analytics Dashboard</span>
+            <div class="home-sub">Your interactive workspace for International Cricket Data & AI Insights</div>
+            <ul class="feature-list">
+                <li>📊 <b>Visualize</b> player, team, and match trends</li>
+                <li>🧬 <b>Cluster</b> and segment players by performance</li>
+                <li>🔮 <b>Classify</b> top scorers and bowlers</li>
+                <li>📈 <b>Predict</b> player runs (regression models)</li>
+                <li>🧩 <b>Uncover</b> hidden patterns (association rules)</li>
+            </ul>
+            <a href="#" class="explore-btn">✨ Start Exploring!</a>
         </div>
         """,
         unsafe_allow_html=True,
     )
+
 
 
 elif page == "Data Overview":
