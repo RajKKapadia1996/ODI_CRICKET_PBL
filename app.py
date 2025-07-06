@@ -69,19 +69,26 @@ def prettify_table(data):
 if page == "Home":
     st.markdown(
         """
-        <h1 style="color:#08F7FE;">🏏 ODI Cricket Analytics Dashboard</h1>
-        <h3 style="color:#F7F7FF;">Modern, Dark, and Neon – Data for the Win</h3>
-        <ul style="font-size:1.15rem;color:#F7F7FF;">
-            <li>📊 <b>Visualizations</b>: Discover player trends</li>
-            <li>🧬 <b>Clustering</b>: Group by skills</li>
-            <li>📈 <b>Regression</b>: Predict runs</li>
-            <li>🔮 <b>Classification</b>: Who’s a high scorer?</li>
-            <li>🧩 <b>Association Rules</b>: Find hidden patterns</li>
-        </ul>
-        <hr style="border-top: 1px solid #08F7FE;">
+        <div style="background:linear-gradient(90deg,#232946 60%,#08F7FE11 100%);padding:2rem 2.5rem 2rem 2.5rem;border-radius:20px;margin-bottom:30px;border:2px solid #08F7FE;">
+            <h1 style="color:#08F7FE;font-size:2.5rem;margin-bottom:1rem;">🏏 ODI Cricket Analytics Dashboard</h1>
+            <h3 style="color:#F7F7FF;font-weight:600;margin-bottom:1.2rem;">Explore International Cricket Stats with <span style="color:#08F7FE;">AI-Powered Insights</span></h3>
+            <p style="font-size:1.25rem;color:#F7F7FF;margin-bottom:1.2rem;">
+                <b>This dashboard lets you:</b>
+                <ul style="font-size:1.1rem;line-height:2;">
+                  <li>📊 <b>Visualize</b> top scorers, teams, & player stats</li>
+                  <li>🧬 <b>Cluster</b> players by performance & style</li>
+                  <li>🔮 <b>Classify</b> high scorers & top wicket-takers</li>
+                  <li>📈 <b>Predict</b> player runs (regression)</li>
+                  <li>🧩 <b>Discover</b> hidden patterns (association rules)</li>
+                </ul>
+                <b>Use the sidebar</b> to explore each section.<br>
+                <span style="color:#08F7FE;font-size:1.1rem;">Built for students, analysts, fans, and cricket scouts!</span>
+            </p>
+        </div>
         """,
         unsafe_allow_html=True,
     )
+
 
 elif page == "Data Overview":
     st.header("🗂️ Data Overview")
