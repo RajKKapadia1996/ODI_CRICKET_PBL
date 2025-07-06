@@ -18,6 +18,7 @@ st.set_page_config(page_title="ODI Cricket Analytics Dashboard", layout="wide")
 @st.cache_data
 def load_data():
     df = pd.read_csv("ODI Cricket Data new.csv")
+    df.columns = df.columns.str.strip()  # Remove extra spaces, but keep original casing
     return df
 
 df = load_data()
@@ -38,7 +39,12 @@ if page == "Home":
     st.title("🏏 ODI Cricket Analytics Dashboard")
     st.markdown("""
     Explore player stats, trends, and predictions in One Day International Cricket!
-    ...
+    - 🧬 **Clustering:** Segment players by style & performance
+    - 🤖 **Classification:** Predict high scorers or wicket-takers
+    - 📈 **Regression:** Forecast runs/wickets
+    - 🧩 **Association Rules:** Find player attribute patterns
+    - 📊 **10+ Visualizations:** Explore top performers, correlations, and more
+    Use the sidebar to navigate.
     """)
 
 # --- DATA OVERVIEW ---
@@ -235,3 +241,4 @@ elif page == "Association Rules":
     except Exception as e:
         st.error(f"Association rules error: {e}")
 
+st.info("Built with 🐍 Streamlit, sklearn, and mlxtend. Update the code for your custom objectives or more complex models!")
