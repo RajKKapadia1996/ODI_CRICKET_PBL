@@ -238,7 +238,6 @@ elif page == "Association Rules":
     st.title("🧩 Association Rules Mining")
     try:
         assoc_df = pd.DataFrame()
-        # Lower thresholds to get more trues
         assoc_df["highscorer"] = df["total_runs"] > 1000
         assoc_df["highwickets"] = df["total_wickets_taken"] > 25
         assoc_df["allrounder"] = ((df["total_runs"] > 500) & (df["total_wickets_taken"] > 10))
@@ -254,6 +253,34 @@ elif page == "Association Rules":
             if not rules.empty:
                 st.dataframe(rules[["antecedents", "consequents", "support", "confidence", "lift"]].head(10))
                 st.write("Example: [highscorer, highwickets] → allrounder")
+
+                # ---- PLOT 1: Support vs Confidence Bubble Plot ----
+                st.subheader("Support vs Confidence (bubble size = Lift)")
+                fig, ax = plt.subplots(figsize=(7,5))
+                sc = ax.scatter(rules['support'], rules['confidence'], 
+                                s=300*rules['lift'], alpha=0.7, c=rules['lift'], cmap="cool")
+                for i, row in rules.iterrows():
+                    label = ','.join([str(a) for a in row['antecedents']]) + " → " + ','.join([str(c) for c in row['consequents']])
+                    ax.annotate(label, (row['support'], row['confidence']), fontsize=8, alpha=0.5)
+                ax.set_xlabel("Support")
+                ax.set_ylabel("Confidence")
+                ax.set_title("Association Rules: Support vs Confidence")
+                cbar = fig.colorbar(sc, ax=ax)
+                cbar.set_label("Lift")
+                st.pyplot(fig)
+
+                # ---- PLOT 2: Heatmap of Top Rules by Confidence ----
+                st.subheader("Heatmap: Confidence of Top Association Rules")
+                # Build a pivot for heatmap
+                plot_rules = rules.copy()
+                plot_rules['antecedent'] = plot_rules['antecedents'].apply(lambda x: ','.join(list(x)))
+                plot_rules['consequent'] = plot_rules['consequents'].apply(lambda x: ','.join(list(x)))
+                pivot = plot_rules.pivot(index='antecedent', columns='consequent', values='confidence').fillna(0)
+                fig, ax = plt.subplots(figsize=(6,4))
+                sns.heatmap(pivot, annot=True, fmt=".2f", cmap="Blues", ax=ax)
+                ax.set_title("Confidence Heatmap (Antecedent → Consequent)")
+                st.pyplot(fig)
+
             else:
                 st.warning("No rules found: Try lowering thresholds further or reduce min_support/confidence.")
         else:
