@@ -28,8 +28,8 @@ def load_data():
 
 df = load_data()
 
-# Print cleaned columns for debugging (optional)
-# st.write("Cleaned columns:", df.columns.tolist())
+Print cleaned columns for debugging (optional)
+st.write("Cleaned columns:", df.columns.tolist())
 
 st.sidebar.title("Navigation")
 page = st.sidebar.radio("Choose Section", [
