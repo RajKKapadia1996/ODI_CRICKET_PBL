@@ -172,5 +172,10 @@ elif page == "Association Rules":
         assoc_df["allrounder"] = ((df["runs"] > 3000) & (df["wickets"] > 75))
         assoc_df["veteran"] = df["matches"] > 150
         assoc_df = assoc_df.astype(int)
+
         freq_items = apriori(assoc_df, min_support=0.1, use_colnames=True)
-        rules = asso
+        rules = association_rules(freq_items, metric="confidence", min_threshold=0.5)
+        st.dataframe(rules[["antecedents", "consequents", "support", "confidence", "lift"]].head(10))
+        st.write("Example: [highscorer, aggressive] → allrounder")
+    except Exception as e:
+        st.error(f"Association rules error: {e}")
