@@ -22,12 +22,24 @@ def load_data():
     df.columns = (df.columns.str.replace('\u200b', '', regex=True)
                               .str.replace('\xa0', '', regex=True)
                               .str.strip())
+    # Convert all relevant columns to numeric (removes commas, then tries to convert)
+    num_cols = [
+        "total_runs", "strike_rate", "total_balls_faced", "total_wickets_taken", 
+        "total_runs_conceded", "total_overs_bowled", "total_matches_played", 
+        "matches_played_as_batter", "matches_played_as_bowler", "matches_won", "matches_lost", 
+        "player_of_match_awards", "average", "percentage"
+    ]
+    for col in num_cols:
+        if col in df.columns:
+            # Remove commas, then try to convert to float
+            df[col] = pd.to_numeric(df[col].astype(str).str.replace(",", "").str.replace(".", ""), errors='coerce')
     return df
 
 df = load_data()
 
-# Uncomment below for debugging
+# Uncomment for debugging:
 # st.write("Cleaned columns:", df.columns.tolist())
+# st.write(df.head())
 
 st.sidebar.title("Navigation")
 page = st.sidebar.radio("Choose Section", [
