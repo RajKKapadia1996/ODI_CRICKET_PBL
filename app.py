@@ -238,20 +238,24 @@ elif page == "Association Rules":
     st.title("🧩 Association Rules Mining")
     try:
         assoc_df = pd.DataFrame()
-        if "total_runs" in df.columns:
-            assoc_df["highscorer"] = df["total_runs"] > 3000
-        if "total_wickets_taken" in df.columns:
-            assoc_df["highwickets"] = df["total_wickets_taken"] > 75
-        if all(col in df.columns for col in ["total_runs", "total_wickets_taken"]):
-            assoc_df["allrounder"] = ((df["total_runs"] > 1500) & (df["total_wickets_taken"] > 25))
-        if "total_matches_played" in df.columns:
-            assoc_df["veteran"] = df["total_matches_played"] > 100
+        # Lower thresholds to get more trues
+        assoc_df["highscorer"] = df["total_runs"] > 1000
+        assoc_df["highwickets"] = df["total_wickets_taken"] > 25
+        assoc_df["allrounder"] = ((df["total_runs"] > 500) & (df["total_wickets_taken"] > 10))
+        assoc_df["veteran"] = df["total_matches_played"] > 50
+
+        st.write("Support for each rule (fraction of True):")
+        st.write(assoc_df.mean())
+
         if assoc_df.shape[1] >= 2:
             assoc_df = assoc_df.astype(int)
-            freq_items = apriori(assoc_df, min_support=0.1, use_colnames=True)
-            rules = association_rules(freq_items, metric="confidence", min_threshold=0.5)
-            st.dataframe(rules[["antecedents", "consequents", "support", "confidence", "lift"]].head(10))
-            st.write("Example: [highscorer, highwickets] → allrounder")
+            freq_items = apriori(assoc_df, min_support=0.05, use_colnames=True)
+            rules = association_rules(freq_items, metric="confidence", min_threshold=0.3)
+            if not rules.empty:
+                st.dataframe(rules[["antecedents", "consequents", "support", "confidence", "lift"]].head(10))
+                st.write("Example: [highscorer, highwickets] → allrounder")
+            else:
+                st.warning("No rules found: Try lowering thresholds further or reduce min_support/confidence.")
         else:
             st.warning("Not enough columns for association rules analysis.")
     except Exception as e:
